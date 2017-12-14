@@ -1,0 +1,19 @@
+player_pos = PVector(25,560)
+
+wall1 = PVector(0,600) 
+
+class collide:
+    pass
+
+    def __init__(self,wall):
+        
+def setup():
+    size(1000,600)
+    
+def draw():
+    
+    global player_pos
+    
+    background(255,255,255)
+    
+    ellipse(player_pos.x,player_pos.y,40,40)    
