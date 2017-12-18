@@ -1,19 +1,63 @@
-player_pos = PVector(25,560)
-
-wall1 = PVector(0,600) 
-
-class collide:
-    pass
-
-    def __init__(self,wall):
+class Player():
+    
+    def __init__():
         
+        self.position = PVector(x, y)
+
+        self.acceleration = PVector(0,0)
+        self.velocity = PVector(0,0)
+        self.friction = .9
+        self.maxSpeed = 20
+        self.maxJump = 30
+        self.radius = 30
+       
+       self.keysArray = [False, False,False]
+           
+    def display():
+        
+    def update(self):
+        
+        if keysArray[0] == True:
+            self.applyForce(-self.maxSpeed, 0)
+        if keysArray[1] == True:
+            self.applyForce(self.maxspeed,0)
+        if keysArray[2] == True:
+            self.applyForce(0,self.maxJump)
+    def applyForces(self,x ,y):
+        
+            self.position.x += x
+            self.position.y += y
+            
+    def collision():
+        
+        
+def worldPoint_to_screenPoint(self, worldPoints):
+    return PVector(())
+    
 def setup():
-    size(1000,600)
+    size(400,400)
+    
+    global position
+    playerPos = position(0,0)
     
 def draw():
+
     
-    global player_pos
+def keyPressed():
     
-    background(255,255,255)
+    if keyCode == LEFT or key = "a" or "A":
+        keysArray[0] = True
+    if keyCode == RIGHT or key = "d" or "D":
+        keysArray[1] = True
+    if keyCode == UP or key = "w" or "W":
+        keysArray[2] = True 
     
-    ellipse(player_pos.x,player_pos.y,40,40)    
+def keyReleased():
+    
+    if keyCode == LEFT or key = "a" or "A":
+        keysArray[0] = False
+    if keyCode == RIGHT or key = "d" or "D":
+        keysArray[1] = False
+    if keyCode == UP or key = "w" or "W":
+        keysArray[2] = False 
+        
