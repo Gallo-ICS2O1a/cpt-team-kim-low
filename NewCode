@@ -1,0 +1,92 @@
+class player():
+    
+    def __init__(self,x,y):
+        
+        self.position = PVector(x, y)
+        self.acceleration = PVector(0,0)
+        self.velocity = PVector(0,0)
+        self.friction = .9
+        self.maxSpeed = 2
+        self.maxJump = 1
+        self.playerDimensions = 30
+        self.gravity = 0
+        
+        self.bottomBorder = [0, 390, 400, 20]
+        self.leftBorder = [10, 0, -10, 400]
+        self.rightBorder = [390, 0, 10, 400] 
+        self.platform = [100,350,200,10]
+           
+    def display(self):
+        screenPos = worldPoint_to_screenPoint(self.position)
+        fill(0)
+        rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
+        
+    def applyForce(self,x ,y):
+        
+        self.acceleration.x += x
+        self.acceleration.y += y
+        
+    def update(self):
+        
+        self.applyForce(0,self.gravity)
+        
+        if keyArrays[0] == True:
+            self.applyForce(-self.maxSpeed, 0)
+        if keyArrays[1] == True:
+            self.applyForce(self.maxSpeed,0)
+        if keyArrays[2] == True:
+            self.applyForce(0,self.maxJump)
+        
+        self.velocity.x += self.acceleration.x
+        self.velocity.y += self.acceleration.y
+        
+        self.velocity.x *= self.friction
+        
+        self.position.x += self.velocity.x
+        self.position.y += self.velocity.y
+        
+        
+        
+        print(self.acceleration, keyArrays)
+        
+        self.acceleration = PVector(0,0)
+            
+        self.display()
+            
+    #def collision(self,screenPos):
+        
+        
+def worldPoint_to_screenPoint(worldPoints):
+    return PVector((width/2 + worldPoints.x),(height/2 - worldPoints.y))
+    
+def setup():
+    size(400,400)
+    
+    global playerObj
+    playerObj = player(0,0)
+    
+    global keyArrays
+    keyArrays = [False, False, False]
+    
+def draw():
+    #frameRate(20)
+    background(255,255,255)
+    playerObj.update()
+    
+def keyPressed():
+    
+    if keyCode == LEFT or key == "a" :
+        keyArrays[0] = True
+    if keyCode == RIGHT or key == "d":
+        keyArrays[1] = True
+    if keyCode == UP or key == "w":
+        keyArrays[2] = True 
+    
+def keyReleased():
+    
+    if keyCode == LEFT or key == "a":
+        keyArrays[0] = False
+    if keyCode == RIGHT or key == "d":
+        keyArrays[1] = False
+    if keyCode == UP or key == "w":
+        keyArrays[2] = False 
