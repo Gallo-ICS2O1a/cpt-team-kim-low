@@ -1,0 +1,278 @@
+def WorldPointToScreenPoint(worldPoint):
+    return PVector(width/2 + worldPoint.x, height/2 - worldPoint.y)
+
+def ScreenPointToWorldPoint(screenPoint):
+    return PVector((screenPoint.x - width/2) + mainCamera.position.x, (screenPoint.y + height/2) + mainCamera.position.y)
+
+def ccw(point1,point2,point3):
+    return (point3.y-point1.y)*(point2.x-point1.x) > (point2.y-point1.y)*(point3.x-point1.x)
+
+def LineIntersect(point1,point2,point3,point4):
+    return ccw(point1,point3,point4) != ccw(point2,point3,point4) and ccw(point1,point2,point3) != ccw(point1,point2,point4)
+
+def raycast(origin, direction):
+    for platform in gameMap.platformList:
+        if LineIntersect(origin,direction,platform.bottomWall.point1,platform.bottomWall.point2):
+            return platform
+        
+        if LineIntersect(origin,direction,platform.topWall.point1,platform.topWall.point2):
+            return platform
+        
+        if LineIntersect(origin,direction,platform.rightWall.point1,platform.rightWall.point2):
+            return platform
+        
+        if LineIntersect(origin,direction,platform.leftWall.point1,platform.leftWall.point2):
+            return platform
+    return False
+    
+class lineData():
+    def __init__(self, p1, p2):
+        self.point1 = PVector(p1.x, p1.y)
+        self.point2 = PVector(p2.x, p2.y)
+
+class platformManager():
+    
+    def __init__(self):
+        self.platformList = []
+        self.editPos1 = PVector(0,0)
+        
+        self.editPos2 = PVector(0,0)
+        self.editing = False
+        self.tempPlatform = None
+        
+    def newPlatform(self, x, y):
+        temp = platform(x, y)
+        self.platformList.append(temp)
+    def addPlatform(self, p):
+        self.platformList.append(p)
+    def display(self):
+        for platform in self.platformList:
+            platform.display()
+    def edit(self):
+        if inputKeys[0]:
+            mainCamera.position.x += 8
+        if inputKeys[1]:
+            mainCamera.position.x -= 8
+        if inputKeys[2]:
+            mainCamera.position.y += 8
+        if inputKeys[3]:
+            mainCamera.position.y -= 8
+            
+        playerController.position = mainCamera.position
+        
+        
+        if mouseInput[1] and self.editing == False:
+            self.editPos1 = mouseInput[0]
+            self.editing = True
+        if self.editing and mouseInput[1]:
+            self.editPos2 = mouseInput[0]
+            
+            w = abs(self.editPos1.x - self.editPos2.x)
+            h = abs(self.editPos1.y - self.editPos2.y)
+            
+            self.tempPlatform = platform(self.editPos1,w*2,h*2)
+            self.tempPlatform.display()
+            
+        if self.editing and mouseInput[1] == False:
+            self.addPlatform(self.tempPlatform)
+            self.editing = False
+            
+        if mouseInput[2]:
+            self.deletePlatform()
+            
+            
+        self.display()
+    def deletePlatform(self):
+        i = 0
+        for platform in self.platformList:
+            if mouseInput[0].x > platform.topLeftPoint.x and mouseInput[0].x < platform.topRightPoint.x:
+                if mouseInput[0].y > platform.bottomLeftPoint.y and mouseInput[0].y < platform.topRightPoint.y:
+                    self.platformList.pop(i)
+                    return None
+            i += 1
+                
+        
+
+
+class platform():
+
+    def __init__(self, p,w,h):
+        
+        self.position = p
+        
+        self.w = w
+        self.h = h
+        
+        self.topLeftPoint = PVector(p.x - w/2,p.y + h/2)
+        self.topRightPoint = PVector(p.x + w/2,p.y + h/2)
+        self.bottomLeftPoint = PVector(p.x - w/2,p.y - h/2)
+        self.bottomRightPoint = PVector(p.x + w/2,p.y - h/2)
+        
+        self.rightWall = lineData(self.topRightPoint, self.bottomRightPoint)
+        self.leftWall = lineData(self.topLeftPoint, self.bottomLeftPoint)
+        self.topWall = lineData(self.topLeftPoint, self.topRightPoint)
+        self.bottomWall = lineData(self.bottomLeftPoint, self.bottomRightPoint)
+
+    def display(self):
+        screenPos = WorldPointToScreenPoint(self.position - mainCamera.position)
+        rect(screenPos.x - self.w/2,screenPos.y - self.h/2,self.w, self.h)
+
+class player():
+
+    def __init__(self, x, y):
+        self.position = PVector(x,y)
+        self.velocity = PVector(0,0)
+        self.acceleration = PVector(0,0)
+        
+        self.collisionArray = [False, False, False, False]
+    
+        self.playerWidth = 25
+        self.playerHeight = 40
+        
+        self.gravity = -1
+        
+        self.maxSpeed = 3
+        self.jumpForce = 25
+        self.minJumpForce = 10
+        self.friction = 0.8
+
+    def display(self):
+        screenPos = WorldPointToScreenPoint(self.position - mainCamera.position)
+        rect(int(screenPos.x) - self.playerWidth/2, int(screenPos.y) - self.playerHeight/2, self.playerWidth, self.playerHeight)
+
+    def update(self):
+        
+        self.applyForce(0,self.gravity)
+        
+        if inputKeys[0]:
+            self.applyForce(self.maxSpeed,0)
+        if inputKeys[1]:
+            self.applyForce(-self.maxSpeed,0)
+        if inputKeys[2] and self.collisionArray[1]:
+            self.applyForce(0,self.jumpForce)
+        if not inputKeys[2] and not self.collisionArray[1] and self.velocity.y >= self.minJumpForce and self.velocity.y < self.jumpForce:
+            self.velocity.y = self.minJumpForce
+            
+        self.velocity.x += self.acceleration.x
+        self.velocity.y += self.acceleration.y
+
+        self.velocity.x *= self.friction
+    
+        self.position.x += self.velocity.x
+        self.position.y += self.velocity.y
+            
+        self.acceleration = PVector(0,0)
+        
+        self.checkCollision()
+        
+        mainCamera.position.x = lerp(mainCamera.position.x,self.position.x,0.3)
+        mainCamera.position.y = lerp(mainCamera.position.y,self.position.y,0.3)
+        
+
+        self.display()
+        
+        
+    def applyForce(self, x, y):
+        self.acceleration.x += x
+        self.acceleration.y += y
+    
+    def checkCollision(self):
+        self.collisionArray = [False, False, False, False]
+        
+        rayUp = raycast(self.position, PVector(self.position.x,self.position.y + self.playerHeight/2))
+        if rayUp != False:
+            self.collisionArray[0] = True
+            self.velocity.y = 0
+            self.position.y = rayUp.bottomWall.point1.y - self.playerHeight/2
+        rayDown = raycast(self.position, PVector(self.position.x,self.position.y - self.playerHeight/2 + self.velocity.y))
+        if rayDown != False:
+            self.collisionArray[1] = True
+            self.velocity.y = 0
+            self.position.y = rayDown.topWall.point1.y + self.playerHeight/2
+        rayLeft = raycast(self.position, PVector(self.position.x - self.playerWidth/2,self.position.y))
+        if rayLeft != False:
+            self.collisionArray[2] = True
+            self.velocity.x = 0
+            self.position.x = rayLeft.rightWall.point1.x + self.playerWidth/2
+        rayRight = raycast(self.position, PVector(self.position.x + self.playerWidth/2,self.position.y))
+        if rayRight != False:
+            self.collisionArray[3] = True
+            self.velocity.x = 0
+            self.position.x = rayRight.leftWall.point1.x - self.playerWidth/2
+
+class cameraObject():
+    def __init__(self, x, y):
+        self.position = PVector(x,y)
+        
+def setup():
+    size(1280,800);
+    
+    global playerController
+    playerController = player(0,0)
+    
+    global inputKeys
+    inputKeys = [False, False, False, False]
+    
+    global mouseInput
+    mouseInput = [0, False, False]
+    
+    global gameMap
+    gameMap = platformManager()
+    
+    global mainCamera
+    mainCamera = cameraObject(0,0)
+    
+    global mode
+    mode = 2
+
+def draw():
+    
+    background(0)
+
+    mouseInput[0] = ScreenPointToWorldPoint(PVector(mouseX, -mouseY))
+
+    if mode == 1:
+        gameMap.display()
+        playerController.update()
+    if mode == 2:
+        playerController.display()
+        gameMap.edit()
+    
+def keyPressed():
+    if keyCode == RIGHT or key == 'd':
+        inputKeys[0] = True
+    if keyCode == LEFT or key == 'a':
+        inputKeys[1] = True
+    if keyCode == UP or key == 'w' or key == ' ':
+        inputKeys[2] = True
+    if keyCode == DOWN or key == 's':
+        inputKeys[3] = True
+    
+        
+def keyReleased():
+    if keyCode == RIGHT or key == 'd':
+        inputKeys[0] = False
+    if keyCode == LEFT or key == 'a':
+        inputKeys[1] = False
+    if keyCode == UP or key == 'w' or key == ' ':
+        inputKeys[2] = False
+    if keyCode == DOWN or key == 's':
+        inputKeys[3] = False
+        
+    global mode
+    if key == '1':
+        mode = 1
+    if key == '2':
+        mode = 2
+
+def mousePressed():
+    if mouseButton == LEFT:
+        mouseInput[1] = True
+    if mouseButton == RIGHT:
+        mouseInput[2] = True
+        
+def mouseReleased():
+    if mouseButton == LEFT:
+        mouseInput[1] = False
+    if mouseButton == RIGHT:
+        mouseInput[2] = False
