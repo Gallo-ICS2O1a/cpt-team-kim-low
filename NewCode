@@ -1,3 +1,14 @@
+
+def ccw(point1, point2, otherPoint):
+   return (otherPoint.y-point1.y)*(point2.x-point1.x) > (point2.y-point1.y)*(otherPoint.x-point1.x)
+
+def lineIntersect(p1, q1, p2, q2):
+    
+    if (ccw(p1, q1, p2) = True and ccw != (p1, q1, q2)) and (ccw(p2, q1, p1) = True and ccw(p2, q2, q1) != True):
+        return True
+    else:
+        return False
+
 class player():
     
     def __init__(self,x,y):
@@ -9,13 +20,14 @@ class player():
         self.maxSpeed = 2
         self.maxJump = 1
         self.playerDimensions = 30
-        self.gravity = 0
+        self.gravity = -.5
         
         self.bottomBorder = [0, 390, 400, 20]
         self.leftBorder = [10, 0, -10, 400]
         self.rightBorder = [390, 0, 10, 400] 
         self.platform = [100,350,200,10]
-           
+        
+        
     def display(self):
         screenPos = worldPoint_to_screenPoint(self.position)
         fill(0)
@@ -53,7 +65,7 @@ class player():
             
         self.display()
             
-    #def collision(self,screenPos):
+    def collision(self,screenPos, lineIntersect, ra):
         
         
 def worldPoint_to_screenPoint(worldPoints):
@@ -68,6 +80,9 @@ def setup():
     global keyArrays
     keyArrays = [False, False, False]
     
+    global rayCast
+    
+    rayCast = [False, False, False, False]
 def draw():
     #frameRate(20)
     background(255,255,255)
