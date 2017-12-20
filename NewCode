@@ -20,7 +20,7 @@ class player():
         self.maxSpeed = 2
         self.maxJump = 1
         self.playerDimensions = 30
-        self.gravity = 0
+        self.gravity = -0.5
         
         self.bottomTouching = False
         self.leftTouching = False
@@ -36,7 +36,7 @@ class player():
         
         fill(0)
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
-        line(screenPos.x - self.velocity.x, screenPos.y - self.playerDimensions/2, screenPos.x + self.playerDimensions + self.velocity.x, screenPos.y - self.playerDimensions/2)
+        line(screenPos.x - self.velocity.x, screenPos.y - self.playerDimensions/2, screenPos.x , screenPos.y - self.playerDimensions/2)
         
         rect(self.bottomBorder[0],self.bottomBorder[1],self.bottomBorder[2],self.bottomBorder[3])
         rect(self.leftBorder[0], self.leftBorder[1],self.leftBorder[2], self.leftBorder[3])
