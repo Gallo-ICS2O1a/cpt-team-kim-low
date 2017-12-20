@@ -9,7 +9,7 @@ def lineIntersect(p1, q1, p2, q2):
     else:
         return False
 
-class player():
+class Player():
     
     def __init__(self,x,y):
         
@@ -31,7 +31,14 @@ class player():
         self.rightBorder = [390, 0, 10, 400] 
         self.platform = [100,350,200,10]
         
-    def display(self):
+        screenPos = worldPoint_to_screenPoint(self.position)
+        
+        ray1 = [False, screenPos.x + self.playerDimensions/2, screenPos.y - self.playerDimensions/2, screenPos.x + self.playerDimensions/2, screenPos.y + self.maxJump]  #up
+        ray2 = [False, screenPos.x + self.playerDimensions/2, screenPos.y - self.playerDimensions/2, screenPos.x + self.playerDimensions/2, screenPos.y - self.playerDimensions - self.max jump,,]  #down
+        ray3 = [False, screenPos.x + self.playerDimensions/2, screenPos.y - self.playerDimensions/2, screenPos.x - self.velocity, screenPos.y - self.playerDimensions/2]  #left
+        ray4 = [False, screenPos.x + self.playerDimensions/2, screenPos.y - self.playerDimensions/2, screenPos.x + self.playerDimensions + self.velocity, screenPos.y - self.playerDimensions/2]  #right
+   
+     def display(self):
         screenPos = worldPoint_to_screenPoint(self.position)
         
         fill(0)
@@ -42,17 +49,16 @@ class player():
         rect(self.leftBorder[0], self.leftBorder[1],self.leftBorder[2], self.leftBorder[3])
         rect(self.rightBorder[0], self.rightBorder[1], self.rightBorder[2], self.rightBorder[3])
         rect(self.platform[0], self.platform[1], self.platform[2], self.platform[3])
-        
-    #def collide(self, screenPos, bottomBorder, rightBorder, leftBorder, platform):
-        
-        #if (self.screenPos.x
-            
             
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
         self.acceleration.y += y
 
+    def rayCasting(self):
+        
+        if lineIntersect(ray)
+                      
     def update(self):
         
         self.applyForce(0,self.gravity)
@@ -85,13 +91,12 @@ def setup():
     size(400,400)
     
     global playerObj
-    playerObj = player(0,0)
+    playerObj = Player(0,0)
     
     global keyArrays
     keyArrays = [False, False, False, False]     # up down left right
     
-    global rayCast
-    rayCast = [False, False, False, False]
+    
 def draw():
     #frameRate(20)
     background(255,255,255)
