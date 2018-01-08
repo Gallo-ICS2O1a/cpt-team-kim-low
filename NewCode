@@ -48,7 +48,7 @@ class Player():
         fill(0)
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
         line(screenPos.x - self.velocity.x, screenPos.y - self.playerDimensions/2, screenPos.x , screenPos.y - self.playerDimensions/2)
-    def grappling(
+    def grappling(self,
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
