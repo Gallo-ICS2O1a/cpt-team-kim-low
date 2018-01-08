@@ -30,16 +30,17 @@ class Player():
         self.position = PVector(x, y)
         self.acceleration = PVector(0,0)
         self.velocity = PVector(0,0)
-        self.friction = .6
+        self.friction = .9
         self.maxSpeed = 2
         self.maxJump = 1
         self.playerDimensions = 30
-        self.gravity = -0.5
+        self.gravity = -0
+        self.moving = False
         
-      #  ray1 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions/2, self.position.y + self.maxJump)]  #up
-      #  ray2 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions - self.max jump)]  #down
-      #  ray3 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x - self.velocity, self.position.y - self.playerDimensions/2)]  #left
-      # ray4 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions + self.velocity, self.position.y - self.playerDimensions/2)]  #right
+        ray1 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions/2, self.position.y + self.maxJump)]  #up
+        ray2 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions - self.maxJump)]  #down
+        ray3 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x - self.velocity, self.position.y - self.playerDimensions/2)]  #left
+        ray4 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions + self.velocity, self.position.y - self.playerDimensions/2)]  #right
    
     def display(self):
         screenPos = worldPoint_to_screenPoint(self.position)
@@ -47,23 +48,27 @@ class Player():
         fill(0)
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
         line(screenPos.x - self.velocity.x, screenPos.y - self.playerDimensions/2, screenPos.x , screenPos.y - self.playerDimensions/2)
-        
-        # rect(self.bottomBorder[0],self.bottomBorder[1],self.bottomBorder[2],self.bottomBorder[3])
-        # rect(self.leftBorder[0], self.leftBorder[1],self.leftBorder[2], self.leftBorder[3])
-        # rect(self.rightBorder[0], self.rightBorder[1], self.rightBorder[2], self.rightBorder[3])
-        # rect(self.platform[0], self.platform[1], self.platform[2], self.platform[3])
-            
+    
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
         self.acceleration.y += y
         
-    #def rayCasting(self, ray1, ray2, ray3, ray4, bottomBorder, leftBorder, rightBorder, platform):
+    def rayCasting(self, ray1, ray2, ray3, ray4, platformList):
         
-       # global
-       # if lineIntersection(ray1[1], ray1[2], platform[0], PVector(platform[0].y - platform[1].y))
-       # if lineIntersection(ray2[1], ray2[2], PVector(platform[0], PVector(platform[0].y - platform[1].y))
-                                
+       for platforms in plaformList:
+           if lineIntersect(ray4[1], ray4[2], PVector(platform[0], platform[1]), PVector(platform[0], platform[1] - platform[3])):
+               self.applyForce(self.positon.x + (self.playerDimension * 1.5) + self.velocity.x,0)
+               
+           if lineIntersect(ray3[1], ray3[2], PVector(platform[0] + platform[2], platform[1]), PVector(platform[0] + platform[2], platform[1] - platform[3])):
+               self.applyForce(self.position.x + (self.playerDimension / 2) + self.velocity.x,0)
+               
+           if lineIntersect(ray1[1], ray1[2], PVector(platform[0], platform[1]-platform[3]), PVector(platform[0]+platform[2], platform[1]-platform[3])):
+               self.applyForce(0, self.position.y + (self.playerDimension / 2) + self.maxJump)
+               
+           if lineIntersect(ray2[1], ray2[2], PVector(platform[0], platform[1]), PVector(platform[0]+platform[2], platform[1])):   
+               self.applyForce(0, self.position.y - (self.playerDimensions * 1.5) - self.maxJump)
+                       
     def update(self):
         
         self.applyForce(0,self.gravity)
@@ -83,14 +88,15 @@ class Player():
         self.velocity.y += self.acceleration.y
         
         self.velocity.x *= self.friction
+        self.velocity.y *= self.friction
         
         self.position.x += self.velocity.x
         self.position.y += self.velocity.y
-            
+        
         self.acceleration = PVector(0,0)
-            
+        
         self.display()
-    
+         
 def worldPoint_to_screenPoint(worldPoints):
     return PVector((width/2 + worldPoints.x),(height/2 - worldPoints.y))
     
@@ -99,8 +105,11 @@ def setup():
     
     global platformList
     platformList = []
-    platformList.append(Platform(-200,200,10,-350))
-    platformList.append(Platform(-200,-350,400,20))
+    platformList.append(Platform(-180,150,20,-310))
+    platformList.append(Platform(-180,-170,340,20))
+    platformList.append(Platform(140,150,20,-310))
+    platformList.append(Platform(-100,-100,180,20))
+    
     
     global playerObj
     playerObj = Player(0,0)
