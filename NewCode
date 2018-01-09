@@ -39,8 +39,8 @@ class Player():
         
         ray1 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions/2, self.position.y + self.maxJump)]  #up
         ray2 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions - self.maxJump)]  #down
-        ray3 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x - self.velocity, self.position.y - self.playerDimensions/2)]  #left
-        ray4 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions + self.velocity, self.position.y - self.playerDimensions/2)]  #right
+        # ray3 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x - self.velocity, self.position.y - self.playerDimensions/2)]  #left
+        # ray4 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions + self.velocity, self.position.y - self.playerDimensions/2)]  #right
    
     def display(self):
         screenPos = worldPoint_to_screenPoint(self.position)
@@ -48,7 +48,13 @@ class Player():
         fill(0)
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
         line(screenPos.x - self.velocity.x, screenPos.y - self.playerDimensions/2, screenPos.x , screenPos.y - self.playerDimensions/2)
-    def grappling(self,
+        
+        
+    def grappling(self):
+        mousePos = PVector(mouseX, mouseY)
+
+        
+                  
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
