@@ -52,6 +52,15 @@ class Player():
         
     def grappling(self):
         mousePos = PVector(mouseX, mouseY)
+        #Player to Mouse
+        angle = PVector.sub(Player, mousePos)
+        dist = angle.mag()
+        #Mouse to Player
+        mouse_angle = PVector.heading()
+        print(mouse_angle)
+        mouse_vector = PVector.fromAngle(mouse_angle)
+        print(mouse_vector)
+        
 
         
                   
