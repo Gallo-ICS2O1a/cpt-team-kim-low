@@ -1,3 +1,4 @@
+
 def ccw(point1, point2, otherPoint):
    if (otherPoint.y-point1.y)*(point2.x-point1.x) > (point2.y-point1.y)*(otherPoint.x-point1.x) == True:
        return True
@@ -51,15 +52,11 @@ class Player():
         
         
     def grappling(self):
-        #Player to Mouse
-        self.angle = PVector.sub(self.position, x,y)
-        distance = self.angle.mag()
-        #Mouse to Player
-        self.mouse_angle = PVector.heading()
-        print(self.mouse_angle)
-        self.mouse_vector = PVector.fromAngle(self.mouse_angle)
-        print(self.mouse_vector)
+        distance = PVector.sub(self.position, mouseX, mouseY)
+        a = PVector.fromAngle(distance.heading())
+        a = distance.mag()
         
+    
 
         
                   
