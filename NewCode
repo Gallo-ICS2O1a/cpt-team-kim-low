@@ -11,19 +11,10 @@ def lineIntersect(p1, q1, p2, q2):
         return True
     else:
         return False
-    
-class Platform():
-    
-    def __init__(self, x, y, w, h):
-        
-        self.position = PVector(x,y)
-        self.h = h
-        self.w = w    
-        
-    def display(self):
-        screenPos = worldPoint_to_screenPoint(self.position)
-        rect(screenPos.x, screenPos.y, self.w, -self.h)
-        
+class collider():
+    def __init__(self,pos ,direction):
+        self.position = pos
+        self.direction = direction
 class Player():
     
     def __init__(self,x,y):
@@ -31,55 +22,86 @@ class Player():
         self.position = PVector(x, y)
         self.acceleration = PVector(0,0)
         self.velocity = PVector(0,0)
-        self.friction = .9
+        self.friction = .8
         self.maxSpeed = 2
-        self.maxJump = 1
+        self.maxJump = 10
         self.playerDimensions = 30
-        self.gravity = -0
-        self.moving = False
+        self.gravity = -1
         
-        ray1 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions/2, self.position.y + self.maxJump)]  #up
-        ray2 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions - self.maxJump)]  #down
-        # ray3 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x - self.velocity, self.position.y - self.playerDimensions/2)]  #left
-        # ray4 = [False, PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2), PVector(self.position.x + self.playerDimensions + self.velocity, self.position.y - self.playerDimensions/2)]  #right
-   
     def display(self):
         screenPos = worldPoint_to_screenPoint(self.position)
         
         fill(0)
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
         line(screenPos.x - self.velocity.x, screenPos.y - self.playerDimensions/2, screenPos.x , screenPos.y - self.playerDimensions/2)
-        
-        
+
     def grappling(self):
         distance = PVector.sub(self.position, mouseX, mouseY)
         a = PVector.fromAngle(distance.heading())
         a = distance.mag()
         
-    
-
-        
-                  
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
         self.acceleration.y += y
         
-    def rayCasting(self, ray1, ray2, ray3, ray4, platformList):
+    def makeColliders(self, velocity, position):
+
+        self.colorColliders = []
         
-       for platforms in plaformList:
-           if lineIntersect(ray4[1], ray4[2], PVector(platform[0], platform[1]), PVector(platform[0], platform[1] - platform[3])):
-               self.applyForce(self.positon.x + (self.playerDimension * 1.5) + self.velocity.x,0)
-               
-           if lineIntersect(ray3[1], ray3[2], PVector(platform[0] + platform[2], platform[1]), PVector(platform[0] + platform[2], platform[1] - platform[3])):
-               self.applyForce(self.position.x + (self.playerDimension / 2) + self.velocity.x,0)
-               
-           if lineIntersect(ray1[1], ray1[2], PVector(platform[0], platform[1]-platform[3]), PVector(platform[0]+platform[2], platform[1]-platform[3])):
-               self.applyForce(0, self.position.y + (self.playerDimension / 2) + self.maxJump)
-               
-           if lineIntersect(ray2[1], ray2[2], PVector(platform[0], platform[1]), PVector(platform[0]+platform[2], platform[1])):   
-               self.applyForce(0, self.position.y - (self.playerDimensions * 1.5) - self.maxJump)
-                       
+        r1 = PVector(position.x + self.playerDimensions/2 + velocity.x, position.y + self.playerDimensions/2)
+        r2 = PVector(position.x + self.playerDimensions/2 + velocity.x, position.y - self.playerDimensions/2)
+        u1 = PVector(position.x + self.playerDimensions/2, position.y + self.playerDimensions/2 + velocity.y)
+        u2 = PVector(position.x - self.playerDimensions/2, position.y + self.playerDimensions/2 + velocity.y)
+        l1 = PVector(position.x - self.playerDimensions/2 + velocity.x, position.y + self.playerDimensions/2)
+        l2 = PVector(position.x - self.playerDimensions/2 + velocity.x, position.y - self.playerDimensions/2)
+        d1 = PVector(position.x + self.playerDimensions/2, position.y - self.playerDimensions/2 + velocity.y)
+        d2 = PVector(position.x - self.playerDimensions/2, position.y - self.playerDimensions/2 + velocity.y)
+        
+        self.colorColliders.append(collider(r1, 'right'))
+        self.colorColliders.append(collider(r2, 'right'))
+        self.colorColliders.append(collider(u1, 'up'))
+        self.colorColliders.append(collider(u2, 'up'))
+        self.colorColliders.append(collider(l1, 'left'))
+        self.colorColliders.append(collider(l2, 'left'))
+        self.colorColliders.append(collider(d1, 'down'))
+        self.colorColliders.append(collider(d2, 'down'))
+        
+    def colorCollide(self, position, colorColliders):
+        
+        screenPos = worldPoint_to_screenPoint(position)
+
+        for collider in self.colorColliders:
+                        
+            colliderScreenPos = worldPoint_to_screenPoint(collider.position)
+            
+            c = blockMap.get(int(colliderScreenPos.x),int(colliderScreenPos.y))
+
+            if c == color(104,255,147) and collider.direction == 'right' :
+                self.velocity.x = 0
+                self.position.x -= self.velocity.x *2
+                print('Right')
+                
+            if c == color(104,255,147) and collider.direction == 'left':
+                self.velocity.x = 0 
+                self.position.x += self.velocity.x *2 
+                print('Left')
+                
+            if c == color(104,255,147) and collider.direction == 'up':
+                self.velocity.y = 0
+                self.position.y += self.velocity.y *2
+                print('Roof')
+                
+            if c == color(104,255,147) and collider.direction == 'down':
+                self.grounded = True
+                self.velocity.y = 0
+                self.position.y -= self.velocity.y *2
+                print('Ground')   
+                
+            else:
+                self.grounded = False
+                
+
     def update(self):
         
         self.applyForce(0,self.gravity)
@@ -88,42 +110,44 @@ class Player():
             self.applyForce(-self.maxSpeed, 0)
         if keyArrays[1] == True:
             self.applyForce(self.maxSpeed,0)
-        if keyArrays[2] == True:
+        if keyArrays[2] == True and self.grounded == True:
             self.applyForce(0,self.maxJump)
-        if keyArrays[3] == True:
-            self.applyForce(0,-self.maxJump)
-            
-       # self.rayCasting
-            
+        # if keyArrays[3] == True:
+        #     self.applyForce(0,-self.maxJump)
+                                    
         self.velocity.x += self.acceleration.x
         self.velocity.y += self.acceleration.y
         
         self.velocity.x *= self.friction
-        self.velocity.y *= self.friction
         
+        self.makeColliders(self.velocity, self.position)
+
+        self.colorCollide(self.position, self.colorColliders)
+
         self.position.x += self.velocity.x
         self.position.y += self.velocity.y
-        
+                    
         self.acceleration = PVector(0,0)
         
+    
+        print('-----------------')
         self.display()
          
 def worldPoint_to_screenPoint(worldPoints):
     return PVector((width/2 + worldPoints.x),(height/2 - worldPoints.y))
     
+def screen_to_pixel(self, pos):
+    return self.pos.y * width + self.pos.x
+
 def setup():
     size(400,400)
     
-    global platformList
-    platformList = []
-    platformList.append(Platform(-180,150,20,-310))
-    platformList.append(Platform(-180,-170,340,20))
-    platformList.append(Platform(140,150,20,-310))
-    platformList.append(Platform(-100,-100,180,20))
+    global blockMap
     
-    
+    blockMap = loadImage("cs_allmine.png")
+      
     global playerObj
-    playerObj = Player(0,0)
+    playerObj = Player(0,200)
     
     global keyArrays
     keyArrays = [False, False, False, False]     # up down left right
@@ -131,10 +155,10 @@ def setup():
     
 def draw():
     #frameRate(20)
-    background(255,255,255)
-    
-    for platform in platformList:
-        platform.display()
+    try:
+        background(blockMap)
+    except:
+        background(255)
     
     playerObj.update()
     
