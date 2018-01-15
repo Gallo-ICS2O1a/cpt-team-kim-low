@@ -35,10 +35,12 @@ class Player():
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
         line(screenPos.x - self.velocity.x, screenPos.y - self.playerDimensions/2, screenPos.x , screenPos.y - self.playerDimensions/2)
 
-    def grappling(self):
-        distance = PVector.sub(self.position, mouseX, mouseY)
-        a = PVector.fromAngle(distance.heading())
-        a = distance.mag()
+   def grappling(self):
+        if mouseClicked == True:
+            mousePos = (mouseX, mouseY)
+            hookdist = PVector.sub(mousePos, self.position)
+            hooknormalization = PVector(hookdist.x / hookdist.y, hookdist.y / hookdist.y)
+            self.position.x += hooknormalization.x
         
     def applyForce(self,x ,y):
         
