@@ -22,16 +22,14 @@ class Player():
         fill(0)
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
         
-    def direction(self, pos):
-        
-        if pos.x > grapplingLocation.x:
-            rise
-            
     def grappling(self):
-        distance = PVector.sub(self.position, mouseX, mouseY)
-        a = PVector.fromAngle(distance.heading())
-        a = distance.mag()
-        
+        if mousePressed == True:
+            mousePos = PVector(mouseX, mouseY)
+            hookdist = PVector.sub(mousePos, self.position)
+            self.speedDampiner = PVector(hookdist.x / hookdist.y, hookdist.y / hookdist.y)
+            self.position.x += self.speedDampiner.x
+            self.position.y += self.speedDampiner.y
+            print(self.speedDampiner)
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
@@ -49,6 +47,8 @@ class Player():
         l2 = PVector(position.x - self.playerDimensions/2 + velocity.x, position.y - self.playerDimensions/2)
         d1 = PVector(position.x + self.playerDimensions/2, position.y - self.playerDimensions/2 + velocity.y)
         d2 = PVector(position.x - self.playerDimensions/2, position.y - self.playerDimensions/2 + velocity.y)
+        tr = PVector(position.x - self.playerDimensions/2 + velocity.x, position.y + self.playerDimensions/2 + velocity.y)
+        
         
         self.colorColliders.append(collider(r1, 'right'))
         self.colorColliders.append(collider(r2, 'right'))
@@ -73,14 +73,20 @@ class Player():
             left = False
             up = False
             self.grounded = False
-            if c == color(104,255,147) and collider.direction == 'right' :
+            
+            if c == color(104,255,147) and collider.direction == 'down':
+                self.grounded = True
+                
+            elif c == color(104,255,147) and collider.direction == 'right' :
                 right = True
+                self.grounded = True
                 self.velocity.x = 0
                 self.position.x -= self.velocity.x *2
                 print('Right')
                 
             elif c == color(104,255,147) and collider.direction == 'left':
                 left = True
+                self.grounded = True
                 self.velocity.x = 0 
                 self.position.x += self.velocity.x *2 
                 print('Left')
@@ -90,19 +96,15 @@ class Player():
                 self.velocity.y = 0
                 self.position.y += self.velocity.y *2
                 print('Roof')
-                
-            elif c == color(104,255,147) and collider.direction == 'down':
-                self.grounded = True
-                self.velocity.y = 0
-                self.position.y -= self.velocity.y *2
-                print('Ground')   
-                
+            
             else:
                 self.grounded = False
-            
-    #         if grounded == True or up == True and right == True or left == True:
-    # )
 
+            if self.grounded == True:
+                self.velocity.y = 0
+                self.position.y -= self.velocity.y *2
+                print('Ground')  
+                 
     def update(self):
         
         self.applyForce(0,self.gravity)
@@ -113,13 +115,15 @@ class Player():
             self.applyForce(self.maxSpeed,0)
         if keyArrays[2] == True and self.grounded == True:
             self.applyForce(0,self.maxJump)
-        # if keyArrays[3] == True:
-        #     self.applyForce(0,-self.maxJump)
+        if keyArrays[3] == True:
+            self.applyForce(0,-self.maxJump)
                                     
         self.velocity.x += self.acceleration.x
         self.velocity.y += self.acceleration.y
         
         self.velocity.x *= self.friction
+        
+        self.grappling()
         
         self.makeColliders(self.velocity, self.position)
 
@@ -141,7 +145,7 @@ def setup():
     size(400,400)
     
     global blockMap
-    blockMap = loadImage("cs_allmine.png")
+    blockMap = loadImage("cs_cpt_tr.png")
       
     global playerObj
     playerObj = Player(0,200)
@@ -149,15 +153,10 @@ def setup():
     global keyArrays
     keyArrays = [False, False, False, False]     # up down left right
     
-    global grapplingLocation
-    grapplingLocation = PVector(None, None)
 def draw():
     background(blockMap)
     
     playerObj.update()
-    
-def mouseClicked():
-    grapplingLocation = PVector(mouseX, mouseY)
     
 def keyPressed():
     
@@ -167,8 +166,8 @@ def keyPressed():
         keyArrays[1] = True
     if keyCode == UP or key == "w":
         keyArrays[2] = True 
-    if keyCode == DOWN or key == "s":
-        keyArrays[3] = True
+    # if keyCode == DOWN or key == "s":
+    #     keyArrays[3] = True
 def keyReleased():
     
     if keyCode == LEFT or key == "a":
@@ -177,5 +176,5 @@ def keyReleased():
         keyArrays[1] = False
     if keyCode == UP or key == "w":
         keyArrays[2] = False 
-    if keyCode == DOWN or key == "s":
-        keyArrays[3] = False
+    # if keyCode == DOWN or key == "s":
+    #     keyArrays[3] = False 
