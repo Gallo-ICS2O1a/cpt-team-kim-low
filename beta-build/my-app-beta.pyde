@@ -21,15 +21,21 @@ class Player():
         
         fill(0)
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
+    
+    def mouseClicked (self):
+        self.mousePos = PVector(int(mouseX), int(mouseY))
         
     def grappling(self):
-        if mousePressed == True:
-            mousePos = PVector(mouseX, mouseY)
-            hookdist = PVector.sub(mousePos, self.position)
+        
+        try:
+            hookdist = PVector.sub(self.mousePos, self.position)
             self.speedDampiner = PVector(hookdist.x / hookdist.y, hookdist.y / hookdist.y)
             self.position.x += self.speedDampiner.x
             self.position.y += self.speedDampiner.y
             print(self.speedDampiner)
+            
+        except:
+            print('passed')
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
