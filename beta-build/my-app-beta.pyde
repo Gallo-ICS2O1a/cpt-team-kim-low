@@ -28,9 +28,15 @@ class Player():
             mousePos = PVector(mouseX, mouseY)
             slope  = int(self.position.y - mousePos.y) / int(self.position.x - mousePos.x)
             divFunction = slope / self.grappleIncrement
+            newX = divFunction * (self.position.x - mousePos.x) 
+            newY = divFunction * (self.position.y - mousePos.y) 
+      
             
-            newX = divFunction * (self.position.x - self.mousePos.x)
-            print(self.speedDampiner)
+            
+            
+            
+
+        
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
