@@ -15,27 +15,22 @@ class Player():
         self.maxJump = 12
         self.playerDimensions = 20
         self.gravity = -1
+        self.grappleIncrement = 15
         
     def display(self):
         screenPos = worldPoint_to_screenPoint(self.position)
         
         fill(0)
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
-    
-    def mouseClicked (self):
-        self.mousePos = PVector(int(mouseX), int(mouseY))
         
     def grappling(self):
-        
-        try:
-            hookdist = PVector.sub(self.mousePos, self.position)
-            self.speedDampiner = PVector(hookdist.x / hookdist.y, hookdist.y / hookdist.y)
-            self.position.x += self.speedDampiner.x
-            self.position.y += self.speedDampiner.y
-            print(self.speedDampiner)
+        if mousePressed == True:
+            mousePos = PVector(mouseX, mouseY)
+            slope  = int(self.position.y - mousePos.y) / int(self.position.x - mousePos.x)
+            divFunction = slope / self.grappleIncrement
             
-        except:
-            print('passed')
+            newX = divFunction * (self.position.x - self.mousePos.x)
+            print(self.speedDampiner)
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
