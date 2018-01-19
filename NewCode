@@ -1,9 +1,20 @@
 
-class collider():
-    def __init__(self,pos ,direction):
-        self.position = pos
-        self.direction = direction
+def lineCollision(startPoint, endPoint, direction):       
+    slope = (endPoint.y - startPoint.y)/(endPoint.x - startPoint.x)
+    
+    for x in range(int(startPoint.x),int(endPoint.x)):
         
+        y =  slope *(x  - endPoint.x) + endPoint.y
+        screenPos = worldPoint_to_screenPoint(PVector(x,y))
+        c = blockMap.get(int(screenPos.x),int(screenPos.y))            
+        
+        fill(c)
+        ellipse(screenPos.x,screenPos.y,2,2)
+        if c == color(104,255,147):
+            return True
+        
+    return False
+    
 class Player():
     
     def __init__(self,x,y):
@@ -13,9 +24,9 @@ class Player():
         self.velocity = PVector(0,0)
         self.friction = .8
         self.maxSpeed = 2
-        self.maxJump = 12
-        self.playerDimensions = 20
-        self.gravity = -1
+        self.maxJump = 15
+        self.playerDimensions = 15
+        self.gravity = -0
         
     def display(self):
         screenPos = worldPoint_to_screenPoint(self.position)
@@ -23,113 +34,94 @@ class Player():
         fill(0)
         rect(int(screenPos.x - self.playerDimensions/2), int(screenPos.y - self.playerDimensions/2), self.playerDimensions, self.playerDimensions)
         
-    def grappling(self):
-        if mousePressed == True:
-            mousePos = PVector(mouseX, mouseY)
-            hookdist = PVector.sub(mousePos, self.position)
-            self.speedDampiner = PVector(hookdist.x / hookdist.y, hookdist.y / hookdist.y)
-            self.position.x += self.speedDampiner.x
-            self.position.y += self.speedDampiner.y
-            print(self.speedDampiner)
     def applyForce(self,x ,y):
         
         self.acceleration.x += x
         self.acceleration.y += y
         
-    def makeColliders(self, velocity, position):
+    def colorCollide(self):
+        
+        r1 = PVector(self.position.x + self.playerDimensions/2, self.position.y + self.playerDimensions/2)
+        r2 = PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2)
+        
+        l1 = PVector(self.position.x - self.playerDimensions/2, self.position.y + self.playerDimensions/2)
+        l2 = PVector(self.position.x - self.playerDimensions/2, self.position.y - self.playerDimensions/2)
+        
+        u1 = PVector(self.position.x + self.playerDimensions/4, self.position.y + self.playerDimensions/2 + self.velocity.y)
+        u2 = PVector(self.position.x - self.playerDimensions/4, self.position.y + self.playerDimensions/2 + self.velocity.y)
+        u3 = PVector(self.position.x - self.playerDimensions/2 + self.velocity.x, self.position.y + self.playerDimensions/2 + self.velocity.y)
+        u4 = PVector(self.position.x + self.playerDimensions/2 + self.velocity.x, self.position.y + self.playerDimensions/2 + self.velocity.y)
+        
+        d1 = PVector(self.position.x + self.playerDimensions/4, self.position.y - self.playerDimensions/2 + self.velocity.y)
+        d2 = PVector(self.position.x - self.playerDimensions/4, self.position.y - self.playerDimensions/2 + self.velocity.y)
+        d3 = PVector(self.position.x - self.playerDimensions/2 + self.velocity.x, self.position.y + self.playerDimensions/2 + self.velocity.y)
+        d4 = PVector(self.position.x + self.playerDimensions/2 + self.velocity.x, self.position.y + self.playerDimensions/2 + self.velocity.y)
 
-        self.colorColliders = []
-        
-        r1 = PVector(position.x + self.playerDimensions/2 + velocity.x, position.y + self.playerDimensions/2)
-        r2 = PVector(position.x + self.playerDimensions/2 + velocity.x, position.y - self.playerDimensions/2)
-        u1 = PVector(position.x + self.playerDimensions/2, position.y + self.playerDimensions/2 + velocity.y)
-        u2 = PVector(position.x - self.playerDimensions/2, position.y + self.playerDimensions/2 + velocity.y)
-        l1 = PVector(position.x - self.playerDimensions/2 + velocity.x, position.y + self.playerDimensions/2)
-        l2 = PVector(position.x - self.playerDimensions/2 + velocity.x, position.y - self.playerDimensions/2)
-        d1 = PVector(position.x + self.playerDimensions/2, position.y - self.playerDimensions/2 + velocity.y)
-        d2 = PVector(position.x - self.playerDimensions/2, position.y - self.playerDimensions/2 + velocity.y)
-        
-        self.colorColliders.append(collider(r1, 'right'))
-        self.colorColliders.append(collider(r2, 'right'))
-        self.colorColliders.append(collider(u1, 'up'))
-        self.colorColliders.append(collider(u2, 'up'))
-        self.colorColliders.append(collider(l1, 'left'))
-        self.colorColliders.append(collider(l2, 'left'))
-        self.colorColliders.append(collider(d1, 'down'))
-        self.colorColliders.append(collider(d2, 'down'))
-        
-    def colorCollide(self, position, colorColliders):
-        
-        screenPos = worldPoint_to_screenPoint(position)
+        #lineD# = lineCollision(position, D#, 'direction')
+        screenPos = worldPoint_to_screenPoint(self.position)
 
-        for collider in self.colorColliders:
-                        
-            colliderScreenPos = worldPoint_to_screenPoint(collider.position)
-            
-            c = blockMap.get(int(colliderScreenPos.x),int(colliderScreenPos.y))
-            
-            right = False
-            left = False
-            up = False
-            self.grounded = False
-            
-            if c == color(104,255,147) and collider.direction == 'right' :
-                right = True
-                self.velocity.x = 0
-                self.position.x -= self.velocity.x *2
-                print('Right')
-                
-            elif c == color(104,255,147) and collider.direction == 'left':
-                left = True
-                self.velocity.x = 0 
-                self.position.x += self.velocity.x *2 
-                print('Left')
-                
-            elif c == color(104,255,147) and collider.direction == 'up':
-                up = True
-                self.velocity.y = 0
-                self.position.y += self.velocity.y *2
-                print('Roof')
-                
-            elif c == color(104,255,147) and collider.direction == 'down':
-                self.grounded = True
-                self.velocity.y = 0
-                self.position.y -= self.velocity.y *2
-                print('Ground')   
-                
-            else:
-                self.grounded = False
+        lineR1 = lineCollision(screenPos, r1, 'right')
+        lineR2 = lineCollision(screenPos, r2, 'right')
+        lineL1 = lineCollision(screenPos, l1, 'left')
+        lineL2 = lineCollision(screenPos, l2, 'left')
+        
+        lineU1 = lineCollision(screenPos, u1, 'up')
+        lineU2 = lineCollision(screenPos, u2, 'up')
+        lineU3 = lineCollision(screenPos, u3, 'up')
+        lineU4 = lineCollision(screenPos, u4, 'up')
+        
+        lineD1 = lineCollision(screenPos, d1, 'down')
+        lineD2 = lineCollision(screenPos, d2, 'down')
+        lineD3 = lineCollision(screenPos, d3, 'down')
+        lineD4 = lineCollision(screenPos, d4, 'down')
+        
+        self.grounded = False
 
+        if  lineD1 == True or lineD2 == True or lineD3 == True or lineD4 == True:
+            self.position.y -= -self.velocity.y
+            self.velocity.y = 0
+            self.grounded = True
+            print('Ground') 
+            
+        if  lineR1 == True or lineR2 == True:
+            #self.position.x += -self.velocity.x
+            self.velocity.x = 0
+            print('Right')
+        
+        if lineL1 == True or lineL2 == True:
+            self.position.x -= -self.velocity.x
+            self.velocity.x = 0
+            print('Left')
+            
+        if  lineU1 == True or lineU2 == True or lineU3 == True or lineU4 == True:
+            self.position.y += -self.velocity.y
+            self.velocity.y = 0 
+            print('Roof')
+        
+        print(lineL1,lineR1, lineU1, self.grounded)
+        
     def update(self):
-        
         self.applyForce(0,self.gravity)
-        
+                
         if keyArrays[0] == True:
             self.applyForce(-self.maxSpeed, 0)
         if keyArrays[1] == True:
             self.applyForce(self.maxSpeed,0)
         if keyArrays[2] == True and self.grounded == True:
             self.applyForce(0,self.maxJump)
-        if keyArrays[3] == True:
-             self.applyForce(0,-self.maxJump)
-                                    
+    
         self.velocity.x += self.acceleration.x
         self.velocity.y += self.acceleration.y
         
         self.velocity.x *= self.friction
+    
+        self.colorCollide()
         
-        self.grappling()
-        
-        self.makeColliders(self.velocity, self.position)
-
-        self.colorCollide(self.position, self.colorColliders)
-
         self.position.x += self.velocity.x
         self.position.y += self.velocity.y
-                    
+
         self.acceleration = PVector(0,0)
         
-    
         print('-----------------')
         self.display()
          
@@ -140,15 +132,17 @@ def setup():
     size(400,400)
     
     global blockMap
-    blockMap = loadImage("cs_allmine.png")
+    blockMap = loadImage("cs_cpt_tr.png")
       
     global playerObj
-    playerObj = Player(0,200)
+    playerObj = Player(0,0)
     
     global keyArrays
-    keyArrays = [False, False, False, False]     # up down left right
+    keyArrays = [False, False, False, False] 
+    
     
 def draw():
+    #frameRate(20)
     background(blockMap)
     
     playerObj.update()
@@ -161,8 +155,6 @@ def keyPressed():
         keyArrays[1] = True
     if keyCode == UP or key == "w":
         keyArrays[2] = True 
-    # if keyCode == DOWN or key == "s":
-    #     keyArrays[3] = True
 def keyReleased():
     
     if keyCode == LEFT or key == "a":
@@ -171,5 +163,3 @@ def keyReleased():
         keyArrays[1] = False
     if keyCode == UP or key == "w":
         keyArrays[2] = False 
-    # if keyCode == DOWN or key == "s":
-    #     keyArrays[3] = False
