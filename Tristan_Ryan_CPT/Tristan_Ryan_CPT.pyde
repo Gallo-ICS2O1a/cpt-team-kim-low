@@ -2,6 +2,7 @@ class Levels():
     
     def __init__(self):
         
+        self.maxLevel = 2
         self.levelNumb = 0
         self.currentMap = loadImage("0.png")
        
@@ -9,16 +10,20 @@ class Levels():
         for x in range(width):
             for y in range(height):
                 if self.currentMap.get(x,y) == color(255, 236, 66):
-                    playerObj.position = screen_to_world(PVector(x,y))   
-   
+                    playerObj.velocity = PVector(0,0)
+                    playerObj.position = screen_to_world(PVector(x,y))
+                    break 
+        
     def nextLevel(self):
-        try:
-            self.levelNumb += 1
+        self.levelNumb += 1
+        
+        if self.levelNumb <= self.maxLevel:
             self.currentMap = loadImage(str(self.levelNumb) + ".png")
         
-        except: 
+        else:
             self.levelNumb = 0
             self.currentMap = loadImage(str(self.levelNumb) + ".png")
+        
         self.spawn()
         
     
@@ -68,10 +73,10 @@ class Player():
         endL2 = PVector(self.position.x - self.playerDimensions/2 + self.velocity.x, self.position.y - self.playerDimensions/2)
        
         startD1 = PVector(self.position.x + self.playerDimensions/2 - skinWidth, self.position.y - self.playerDimensions/2 + skinWidth)
-        endD1 = PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2 + self.velocity.y)
+        endD1 = PVector(self.position.x + self.playerDimensions/2, self.position.y - self.playerDimensions/2 + self.velocity.y/4)
         
         startD2 = PVector(self.position.x - self.playerDimensions/2 + skinWidth, self.position.y - self.playerDimensions/2 + skinWidth)
-        endD2 = PVector(self.position.x - self.playerDimensions/2, self.position.y - self.playerDimensions/2 + self.velocity.y)
+        endD2 = PVector(self.position.x - self.playerDimensions/2, self.position.y - self.playerDimensions/2 + self.velocity.y/4)
         
         startU1 = PVector(self.position.x + self.playerDimensions/2 - skinWidth, self.position.y + self.playerDimensions/2 - skinWidth)
         endU1 = PVector(self.position.x + self.playerDimensions/2, self.position.y + self.playerDimensions/2 + self.velocity.y)
@@ -170,11 +175,11 @@ class Player():
             
         if keyArrays[2] and not self.collisionArray[1] and self.currentJump > 0 and keyArrays[0]:
             self.currentJump -= 1
-            self.applyForce(15,15)
+            self.applyForce(10,10)
 
         if keyArrays[2] and not self.collisionArray[1] and self.currentJump > 0 and keyArrays[1]:
             self.currentJump -= 1
-            self.applyForce(-15,15)
+            self.applyForce(-10,10)
         
         if keyArrays[2] == True and self.currentJump > 0:
             self.currentJump -= 1
