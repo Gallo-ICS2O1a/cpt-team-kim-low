@@ -1,7 +1,6 @@
 class Levels():
-
     def __init__(self):
-
+        self.maxLevel = 2
         self.levelNumb = 0
         self.currentMap = loadImage("0.png")
 
@@ -9,16 +8,20 @@ class Levels():
         for x in range(width):
             for y in range(height):
                 if self.currentMap.get(x, y) == color(255, 236, 66):
+                    playerObj.velocity = PVector(0, 0)
                     playerObj.position = screen_to_world(PVector(x, y))
+                    break
 
     def nextLevel(self):
-        try:
-            self.levelNumb += 1
+        self.levelNumb += 1
+
+        if self.levelNumb <= self.maxLevel:
             self.currentMap = loadImage(str(self.levelNumb) + ".png")
 
-        except:
+        else:
             self.levelNumb = 0
             self.currentMap = loadImage(str(self.levelNumb) + ".png")
+
         self.spawn()
 
 
@@ -44,8 +47,8 @@ class Player():
         screenPos = worldPoint_to_screenPoint(self.position)
 
         fill(0)
-        rect(int(
-            screenPos.x - self.playerDimensions/2),
+        rect(
+            int(screenPos.x - self.playerDimensions/2),
             int(screenPos.y - self.playerDimensions/2),
             self.playerDimensions, self.playerDimensions)
 
@@ -58,59 +61,76 @@ class Player():
 
         skinWidth = 2
         startR1 = PVector(
-            self.position.x + self.playerDimensions/2 - skinWidth,
-            self.position.y + self.playerDimensions/2 - skinWidth)
+            self.position.x + self.playerDimensions/2 -
+            skinWidth, self.position.y +
+            self.playerDimensions/2 - skinWidth)
         endR1 = PVector(
-            self.position.x + self.playerDimensions/2 + self.velocity.x,
-            self.position.y + self.playerDimensions/2)
+            self.position.x + self.playerDimensions/2 +
+            self.velocity.x, self.position.y +
+            self.playerDimensions/2)
 
         startR2 = PVector(
-            self.position.x + self.playerDimensions/2 - skinWidth,
-            self.position.y - self.playerDimensions/2 + skinWidth)
+            self.position.x + self.playerDimensions/2 -
+            skinWidth, self.position.y -
+            self.playerDimensions/2 + skinWidth)
         endR2 = PVector(
             self.position.x + self.playerDimensions/2 +
-            self.velocity.x, self.position.y - self.playerDimensions/2)
+            self.velocity.x, self.position.y -
+            self.playerDimensions/2)
+
         startL1 = PVector(
             self.position.x - self.playerDimensions/2 +
-            skinWidth, self.position.y + self.playerDimensions/2 - skinWidth)
+            skinWidth, self.position.y +
+            self.playerDimensions/2 - skinWidth)
         endL1 = PVector(
             self.position.x - self.playerDimensions/2 +
-            self.velocity.x, self.position.y + self.playerDimensions/2)
+            self.velocity.x, self.position.y +
+            self.playerDimensions/2)
 
         startL2 = PVector(
-            self.position.x - self.playerDimensions/2 + skinWidth,
-            self.position.y - self.playerDimensions/2 + skinWidth)
+            self.position.x - self.playerDimensions/2 +
+            skinWidth, self.position.y -
+            self.playerDimensions/2 + skinWidth)
         endL2 = PVector(
             self.position.x - self.playerDimensions/2 +
-            self.velocity.x, self.position.y - self.playerDimensions/2)
+            self.velocity.x, self.position.y -
+            self.playerDimensions/2)
 
         startD1 = PVector(
             self.position.x + self.playerDimensions/2 -
-            skinWidth, self.position.y - self.playerDimensions/2 + skinWidth)
+            skinWidth, self.position.y -
+            self.playerDimensions/2 + skinWidth)
         endD1 = PVector(
-            self.position.x + self.playerDimensions/2, self.position.y -
-            self.playerDimensions/2 + self.velocity.y)
+            self.position.x + self.playerDimensions/2,
+            self.position.y - self.playerDimensions/2 +
+            self.velocity.y/4)
 
         startD2 = PVector(
-            self.position.x - self.playerDimensions/2 + skinWidth,
-            self.position.y - self.playerDimensions/2 + skinWidth)
+            self.position.x - self.playerDimensions/2 +
+            skinWidth, self.position.y -
+            self.playerDimensions/2 + skinWidth)
         endD2 = PVector(
-            self.position.x - self.playerDimensions/2, self.position.y -
-            self.playerDimensions/2 + self.velocity.y)
+            self.position.x - self.playerDimensions/2,
+            self.position.y - self.playerDimensions/2 +
+            self.velocity.y/4)
 
         startU1 = PVector(
-            self.position.x + self.playerDimensions/2 - skinWidth,
-            self.position.y + self.playerDimensions/2 - skinWidth)
+            self.position.x + self.playerDimensions/2 -
+            skinWidth, self.position.y +
+            self.playerDimensions/2 - skinWidth)
         endU1 = PVector(
-            self.position.x + self.playerDimensions/2, self.position.y +
-            self.playerDimensions/2 + self.velocity.y)
+            self.position.x + self.playerDimensions/2,
+            self.position.y + self.playerDimensions/2 +
+            self.velocity.y)
 
         startU2 = PVector(
-            self.position.x - self.playerDimensions/2 + skinWidth,
-            self.position.y + self.playerDimensions/2 - skinWidth)
+            self.position.x - self.playerDimensions/2 +
+            skinWidth, self.position.y +
+            self.playerDimensions/2 - skinWidth)
         endU2 = PVector(
-            self.position.x - self.playerDimensions/2, self.position.y +
-            self.playerDimensions/2 + self.velocity.y)
+            self.position.x - self.playerDimensions/2,
+            self.position.y + self.playerDimensions/2 +
+            self.velocity.y)
 
         rayAray = []
 
@@ -184,15 +204,13 @@ class Player():
     def update(self):
 
         self.applyForce(0, self.gravity)
-
         self.velocity.x *= self.friction
-
-        if (self.velocity.y < -1 and (keyArrays[0] or keyArrays[1]) and
+        if (self.velocity.y < - 1 and (keyArrays[0] or keyArrays[1]) and
                 (self.collisionArray[2] or self.collisionArray[3])):
-            self.velocity.y *= self.wallFriction
+                self.velocity.y *= self.wallFriction
 
-        if (self.collisionArray[1] or self.collisionArray[2] or
-                self.collisionArray[3]):
+        if (self.collisionArray[1] or
+                self.collisionArray[2] or self.collisionArray[3]):
             self.currentJump = self.maxJumps
 
         if keyArrays[0]:
@@ -203,12 +221,12 @@ class Player():
         if (keyArrays[2] and not self.collisionArray[1] and
                 self.currentJump > 0 and keyArrays[0]):
             self.currentJump -= 1
-            self.applyForce(15, 15)
+            self.applyForce(10, 10)
 
         if (keyArrays[2] and not self.collisionArray[1] and
                 self.currentJump > 0 and keyArrays[1]):
             self.currentJump -= 1
-            self.applyForce(-15, 15)
+            self.applyForce(-10, 10)
 
         if keyArrays[2] is True and self.currentJump > 0:
             self.currentJump -= 1
@@ -241,56 +259,57 @@ def lineCollision(startPoint, endPoint, axis):
         if sPx > ePx:
             for x in range(sPx, ePx, -1):
                 c = levelManager.currentMap.get(int(x), sPy)
+
                 if c == color(104, 255, 147):
-                    return [
-                        True, screen_to_world(PVector(int(x), sPy)), 'Wall']
+                    return [True, screen_to_world(PVector(int(x), sPy)),
+                            'Wall']
                 if c == color(255, 73, 79):
-                    return [
-                        True, screen_to_world(PVector(int(x), sPy)), 'Spike']
+                    return [True, screen_to_world(PVector(int(x), sPy)),
+                            'Spike']
                 if c == color(255, 122, 188):
-                    return [
-                        True, screen_to_world(PVector(int(x), sPy)), 'Door']
+                    return [True, screen_to_world(PVector(int(x), sPy)),
+                            'Door']
 
         else:
             for x in range(sPx, ePx):
                 c = levelManager.currentMap.get(int(x), sPy)
 
                 if c == color(104, 255, 147):
-                    return [
-                        True, screen_to_world(PVector(int(x), sPy)), 'Wall']
+                    return [True, screen_to_world(PVector(int(x), sPy)),
+                            'Wall']
                 if c == color(255, 73, 79):
-                    return [
-                        True, screen_to_world(PVector(int(x), sPy)), 'Spike']
+                    return [True, screen_to_world(PVector(int(x), sPy)),
+                            'Spike']
                 if c == color(255, 122, 188):
-                    return [
-                        True, screen_to_world(PVector(int(x), sPy)), 'Door']
+                    return [True, screen_to_world(PVector(int(x), sPy)),
+                            'Door']
     else:
         if sPy > ePy:
             for y in range(sPy, ePy, -1):
                 c = levelManager.currentMap.get(int(sP.x), int(y))
 
                 if c == color(104, 255, 147):
-                    return [
-                        True, screen_to_world(PVector(sPx, int(y))), 'Wall']
+                    return [True, screen_to_world(PVector(sPx, int(y))),
+                            'Wall']
                 if c == color(255, 73, 79):
-                    return [
-                        True, screen_to_world(PVector(sPx, int(y))), 'Spike']
+                    return [True, screen_to_world(PVector(sPx, int(y))),
+                            'Spike']
                 if c == color(255, 122, 188):
-                    return [
-                        True, screen_to_world(PVector(sPx, int(y))), 'Door']
+                    return [True, screen_to_world(PVector(sPx, int(y))),
+                            'Door']
         else:
             for y in range(sPy, ePy):
                 c = levelManager.currentMap.get(int(sP.x), int(y))
 
                 if c == color(104, 255, 147):
-                    return [
-                        True, screen_to_world(PVector(sPx, int(y))), 'Wall']
+                    return [True, screen_to_world(PVector(sPx, int(y))),
+                            'Wall']
                 if c == color(255, 73, 79):
-                    return [
-                        True, screen_to_world(PVector(sPx, int(y))), 'Spike']
+                    return [True, screen_to_world(PVector(sPx, int(y))),
+                            'Spike']
                 if c == color(255, 122, 188):
-                    return [
-                        True, screen_to_world(PVector(sPx, int(y))), 'Door']
+                    return [True, screen_to_world(PVector(sPx, int(y))),
+                            'Door']
 
     return [False]
 
@@ -323,7 +342,9 @@ def setup():
 
 def draw():
     frameRate(120)
+
     background(levelManager.currentMap)
+
     playerObj.update()
 
 
@@ -338,6 +359,7 @@ def keyPressed():
 
 
 def keyReleased():
+
     if keyCode == LEFT or key == "a":
         keyArrays[0] = False
     if keyCode == RIGHT or key == "d":
