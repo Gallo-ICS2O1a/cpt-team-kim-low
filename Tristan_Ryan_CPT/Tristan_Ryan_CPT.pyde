@@ -8,7 +8,8 @@ class Levels():
     def spawn(self):
         for x in range(width):
             for y in range(height):
-                    playerObj.position = screen_to_world(PVector(x,y))     
+                if self.currentMap.get(x,y) == color(255, 236, 66):
+                    playerObj.position = screen_to_world(PVector(x,y))   
    
     def nextLevel(self):
         try:
